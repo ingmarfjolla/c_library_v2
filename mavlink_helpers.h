@@ -269,7 +269,7 @@ MAVLINK_HELPER uint16_t mavlink_finalize_message_buffer(mavlink_message_t* msg, 
 		buf[9] = (msg->msgid >> 16) & 0xFF;
 	}
 	bool encrypt = 1;
-	printf("[MAVLink Parser] ENTERED mavlink_finalize_message_buffer function");
+	//printf("[MAVLink Parser] ENTERED mavlink_finalize_message_buffer function");
 	if (encrypt && msg->msgid!=0){
 		unsigned char key[32] = {0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10,
 			11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
@@ -291,7 +291,7 @@ MAVLINK_HELPER uint16_t mavlink_finalize_message_buffer(mavlink_message_t* msg, 
 		// memcpy(nonce + sizeof(status->current_tx_seq) + sizeof(mavlink_system.sysid), 
 		// 	&mavlink_system.compid, sizeof(mavlink_system.compid));
 
-		unsigned char encrypted_packet[length + 32];  // Encrypted payload buffer
+		unsigned char encrypted_packet[length];  // Encrypted payload buffer
 		unsigned long long encrypted_length;
 
 		// encryption here
@@ -302,7 +302,7 @@ MAVLINK_HELPER uint16_t mavlink_finalize_message_buffer(mavlink_message_t* msg, 
 		if (enc_result == 0) {
 			// SUCCESS: copy encrypted data back into message payload
 			memcpy(_MAV_PAYLOAD_NON_CONST(msg), encrypted_packet, encrypted_length);
-			msg->len = encrypted_length; // Update payload length to encrypted length!
+			//msg->len = encrypted_length; // Update payload length to encrypted length!
 		} else {
 			printf("Encryption failed!");
 			return 0; // abort finalization on encryption failure
@@ -406,7 +406,7 @@ MAVLINK_HELPER void _mav_finalize_message_chan_send(mavlink_channel_t chan, uint
 
 
 	bool encrypt = 1;
-	printf("[MAVLink Parser] ENTERED _mav_finalize_message_chan_send function");
+	//printf("[MAVLink Parser] ENTERED _mav_finalize_message_chan_send function");
 	if (encrypt && msgid != 0){
 		unsigned char key[32] = {0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10,
 			11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
@@ -425,7 +425,7 @@ MAVLINK_HELPER void _mav_finalize_message_chan_send(mavlink_channel_t chan, uint
 		// memcpy(nonce + sizeof(status->current_tx_seq) + sizeof(mavlink_system.sysid), 
 		// 	&mavlink_system.compid, sizeof(mavlink_system.compid));
 
-		unsigned char encrypted_packet[length + 32];  // Encrypted payload buffer
+		unsigned char encrypted_packet[length];  // Encrypted payload buffer
 		unsigned long long encrypted_length;
 
 		// encryption here
@@ -436,7 +436,7 @@ MAVLINK_HELPER void _mav_finalize_message_chan_send(mavlink_channel_t chan, uint
 		if (enc_result == 0) {
 			// Use memcpy explicitly here, safely copy encrypted payload back into original buffer
 			memcpy((char*)packet, encrypted_packet, encrypted_length);
-			length = (uint8_t) encrypted_length; 
+			//length = (uint8_t) encrypted_length; 
 		} else {
 			printf("Encryption failed!\n");
 			return;
@@ -876,7 +876,7 @@ MAVLINK_HELPER uint8_t mavlink_frame_char_buffer(mavlink_message_t* rxmsg,
 				}
 			}
 			bool decrypt = 1;  
-			printf("[MAVLink Parser] ENTERED MAVLINK_PARSE_STATE_GOT_BAD_CRC1 state machine");
+			//printf("[MAVLink Parser] ENTERED MAVLINK_PARSE_STATE_GOT_BAD_CRC1 state machine");
 			if (decrypt && rxmsg->msgid != 0) {
 				unsigned char key[32] = {0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10,
 					11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
