@@ -291,12 +291,12 @@ MAVLINK_HELPER uint16_t mavlink_finalize_message_buffer(mavlink_message_t* msg, 
 		// memcpy(nonce + sizeof(status->current_tx_seq) + sizeof(mavlink_system.sysid), 
 		// 	&mavlink_system.compid, sizeof(mavlink_system.compid));
 
-		unsigned char encrypted_packet[length];  // Encrypted payload buffer
+		unsigned char encrypted_packet[length + 16];  // Encrypted payload buffer
 		unsigned long long encrypted_length;
 
 		// encryption here
 		int enc_result = crypto_aead_encrypt(encrypted_packet, &encrypted_length,
-							_MAV_PAYLOAD(msg), length,  
+							(const unsigned char*)_MAV_PAYLOAD(msg), length,  
 							NULL, 0,  
 							NULL, nonce, key);
 		if (enc_result == 0) {
@@ -426,12 +426,12 @@ MAVLINK_HELPER void _mav_finalize_message_chan_send(mavlink_channel_t chan, uint
 		// memcpy(nonce + sizeof(status->current_tx_seq) + sizeof(mavlink_system.sysid), 
 		// 	&mavlink_system.compid, sizeof(mavlink_system.compid));
 
-		unsigned char encrypted_packet[length];  // Encrypted payload buffer
+		unsigned char encrypted_packet[length + 16];  // Encrypted payload buffer
 		unsigned long long encrypted_length;
 
 		// encryption here
 		int enc_result = crypto_aead_encrypt(encrypted_packet, &encrypted_length,
-							packet, length,  
+							(const unsigned char*)packet, length,  
 							NULL, 0,  
 							NULL, nonce, key);
 		if (enc_result == 0) {
