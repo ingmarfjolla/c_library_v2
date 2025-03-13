@@ -296,12 +296,13 @@ MAVLINK_HELPER uint16_t mavlink_finalize_message_buffer(mavlink_message_t* msg, 
 
 		// encryption here
 		int enc_result = crypto_aead_encrypt(encrypted_packet, &encrypted_length,
-							(const unsigned char*)_MAV_PAYLOAD(msg), length,  
+							_MAV_PAYLOAD(msg), length,  
 							NULL, 0,  
 							NULL, nonce, key);
 		if (enc_result == 0) {
 			// SUCCESS: copy encrypted data back into message payload
 			memcpy(_MAV_PAYLOAD_NON_CONST(msg), encrypted_packet, encrypted_length);
+			printf("Encrypted a packet and replaced OG one !\n");
 			//msg->len = encrypted_length; // Update payload length to encrypted length!
 		} else {
 			printf("Encryption failed!");
@@ -430,12 +431,13 @@ MAVLINK_HELPER void _mav_finalize_message_chan_send(mavlink_channel_t chan, uint
 
 		// encryption here
 		int enc_result = crypto_aead_encrypt(encrypted_packet, &encrypted_length,
-							(const unsigned char*)packet, length,  
+							packet, length,  
 							NULL, 0,  
 							NULL, nonce, key);
 		if (enc_result == 0) {
 			// Use memcpy explicitly here, safely copy encrypted payload back into original buffer
-			memcpy((char*)packet, encrypted_packet, encrypted_length);
+			memcpy(packet, encrypted_packet, encrypted_length);
+			printf("Encrypted a packet and replaced OG one !\n");
 			//length = (uint8_t) encrypted_length; 
 		} else {
 			printf("Encryption failed!\n");
