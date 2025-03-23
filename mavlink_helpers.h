@@ -303,7 +303,8 @@ MAVLINK_HELPER uint16_t mavlink_finalize_message_buffer(mavlink_message_t* msg, 
 			// SUCCESS: copy encrypted data back into message payload
 			memcpy((unsigned char*)_MAV_PAYLOAD_NON_CONST(msg), encrypted_packet, encrypted_length);
 			printf("Encrypted a packet and replaced OG one !\n");
-			//msg->len = encrypted_length; // Update payload length to encrypted length!
+			msg->len = encrypted_length; // Update payload length to encrypted length!
+			buf[1] = encrypted_length;
 		} else {
 			printf("Encryption failed!");
 			return 0; // abort finalization on encryption failure
@@ -316,7 +317,7 @@ MAVLINK_HELPER uint16_t mavlink_finalize_message_buffer(mavlink_message_t* msg, 
 	crc_accumulate(crc_extra, &checksum);
 	mavlink_ck_a(msg) = (uint8_t)(checksum & 0xFF);
 	mavlink_ck_b(msg) = (uint8_t)(checksum >> 8);
-
+	printf("almost done with the encrpyiont function");
 	msg->checksum = checksum;
 
 #ifndef MAVLINK_NO_SIGN_PACKET
@@ -902,7 +903,7 @@ MAVLINK_HELPER uint8_t mavlink_frame_char_buffer(mavlink_message_t* rxmsg,
 				int decr_result = crypto_aead_decrypt(decrypted_packet, &decrypted_length,
 						NULL, 
 						(const unsigned char*)_MAV_PAYLOAD(rxmsg), length,  
-						NULL, NULL,  
+						NULL, 0,  
 						nonce, key);
 				printf("Some form of decryption happened, lets go to the next line");
 
