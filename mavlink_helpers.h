@@ -893,16 +893,21 @@ MAVLINK_HELPER uint8_t mavlink_frame_char_buffer(mavlink_message_t* rxmsg,
 				// memcpy(nonce + sizeof(status->current_tx_seq) + sizeof(rxmsg->sysid), 
 				// 		&rxmsg->compid, sizeof(rxmsg->compid));
 				uint8_t length = rxmsg ->len;
+				printf("The length of the decrypted packet before decryption seems to be : " + length);
 				unsigned char decrypted_packet[length];  // Buffer for decrypted payload
 				unsigned long long decrypted_length;
 
 				// Decryption here
+
+				int decr_result = crypto_aead_decrypt(decrypted_packet, &decrypted_length,
+						NULL, 
+						(const unsigned char*)_MAV_PAYLOAD(rxmsg), length,  
+						NULL, NULL,  
+						nonce, key);
+				printf("Some form of decryption happened, lets go to the next line");
+
 				
-				if (crypto_aead_decrypt(decrypted_packet, &decrypted_length,
-										NULL, 
-										(const unsigned char*)_MAV_PAYLOAD(rxmsg), length,  
-										NULL, 0,  
-										nonce, key) == 0) { 
+				if (decr_result == 0) { 
 					memcpy(_MAV_PAYLOAD_NON_CONST(rxmsg), decrypted_packet, decrypted_length);
 					length = (uint8_t)decrypted_length;
 					printf("[MAVLink Parser] something was decrypter?");
