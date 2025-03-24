@@ -302,7 +302,7 @@ MAVLINK_HELPER uint16_t mavlink_finalize_message_buffer(mavlink_message_t* msg, 
 		if (enc_result == 0) {
 			// SUCCESS: copy encrypted data back into message payload
 			memcpy((unsigned char*)_MAV_PAYLOAD_NON_CONST(msg), encrypted_packet, encrypted_length);
-			printf("Encrypted a packet and replaced OG one !\n");
+			//printf("Encrypted a packet and replaced OG one !\n");
 			msg->len = encrypted_length; // Update payload length to encrypted length!
 			buf[1] = encrypted_length;
 		} else {
@@ -317,7 +317,7 @@ MAVLINK_HELPER uint16_t mavlink_finalize_message_buffer(mavlink_message_t* msg, 
 	crc_accumulate(crc_extra, &checksum);
 	mavlink_ck_a(msg) = (uint8_t)(checksum & 0xFF);
 	mavlink_ck_b(msg) = (uint8_t)(checksum >> 8);
-	printf("almost done with the encrpyiont function");
+	//printf("almost done with the encrpyiont function");
 	msg->checksum = checksum;
 
 #ifndef MAVLINK_NO_SIGN_PACKET
@@ -894,7 +894,7 @@ MAVLINK_HELPER uint8_t mavlink_frame_char_buffer(mavlink_message_t* rxmsg,
 				// memcpy(nonce + sizeof(status->current_tx_seq) + sizeof(rxmsg->sysid), 
 				// 		&rxmsg->compid, sizeof(rxmsg->compid));
 				uint8_t length = rxmsg ->len;
-				printf("The length of the decrypted packet before decryption seems to be : %d\n " , length);
+				//printf("The length of the decrypted packet before decryption seems to be : %d\n " , length);
 				unsigned char decrypted_packet[length];  // Buffer for decrypted payload
 				unsigned long long decrypted_length;
 
@@ -905,13 +905,14 @@ MAVLINK_HELPER uint8_t mavlink_frame_char_buffer(mavlink_message_t* rxmsg,
 						(const unsigned char*)_MAV_PAYLOAD(rxmsg), length,  
 						NULL, 0,  
 						nonce, key);
-				printf("Some form of decryption happened, lets go to the next line");
-
+				//printf("Some form of decryption happened, lets go to the next line");
+				printf("Decryption result for qgroundcontrol is");
+				printf(decr_result);
 				
 				if (decr_result == 0) { 
 					memcpy(_MAV_PAYLOAD_NON_CONST(rxmsg), decrypted_packet, decrypted_length);
 					length = (uint8_t)decrypted_length;
-					printf("[MAVLink Parser] something was decrypter?");
+					//printf("[MAVLink Parser] something was decrypter?");
 				} else {
 					status->msg_received = MAVLINK_FRAMING_BAD_SIGNATURE; 
 				}
