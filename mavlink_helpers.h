@@ -271,6 +271,7 @@ MAVLINK_HELPER uint16_t mavlink_finalize_message_buffer(mavlink_message_t* msg, 
 	bool encrypt = 1;
 	//printf("[MAVLink Parser] ENTERED mavlink_finalize_message_buffer function");
 	if (encrypt && msg->msgid!=0){
+		printf("The message ID being encrypted:  %d\n", msg->msgid);
 		unsigned char key[32] = {0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10,
 			11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
 			22, 23, 24, 25, 26, 27, 28, 29, 30, 31};
@@ -881,6 +882,8 @@ MAVLINK_HELPER uint8_t mavlink_frame_char_buffer(mavlink_message_t* rxmsg,
 			bool decrypt = 1;  
 			//printf("[MAVLink Parser] ENTERED MAVLINK_PARSE_STATE_GOT_BAD_CRC1 state machine");
 			if (decrypt && rxmsg->msgid != 0) {
+				printf("The message ID being decryptedis %d\n", rxmsg->msgid);
+
 				unsigned char key[32] = {0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10,
 					11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
 					22, 23, 24, 25, 26, 27, 28, 29, 30, 31};
@@ -906,7 +909,6 @@ MAVLINK_HELPER uint8_t mavlink_frame_char_buffer(mavlink_message_t* rxmsg,
 						NULL, 0,  
 						nonce, key);
 				//printf("Some form of decryption happened, lets go to the next line");
-				printf("delete me");
 				printf("Decryption result for qgroundcontrol is %d\n", decr_result);
 				if (decr_result == 0) { 
 					memcpy(_MAV_PAYLOAD_NON_CONST(rxmsg), decrypted_packet, decrypted_length);
