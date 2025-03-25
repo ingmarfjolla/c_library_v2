@@ -269,7 +269,8 @@ MAVLINK_HELPER uint16_t mavlink_finalize_message_buffer(mavlink_message_t* msg, 
 		buf[9] = (msg->msgid >> 16) & 0xFF;
 	}
 	bool encrypt = 1;
-	//printf("[MAVLink Parser] ENTERED mavlink_finalize_message_buffer function");
+	printf("[MAVLink Parser] ENTERED mavlink_finalize_message_buffer function\n");
+	printf("The message ID BEFORE ENCRYPTION:  %d\n", msg->msgid);
 	if (encrypt && msg->msgid!=0){
 		printf("The message ID being encrypted:  %d\n", msg->msgid);
 		unsigned char key[32] = {0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10,
@@ -313,6 +314,7 @@ MAVLINK_HELPER uint16_t mavlink_finalize_message_buffer(mavlink_message_t* msg, 
 		//length = (uint8_t) encrypted_length;
 	}	
 	
+	printf("did we make it to the end?\n");
 	uint16_t checksum = crc_calculate(&buf[1], header_len-1);
 	crc_accumulate_buffer(&checksum, _MAV_PAYLOAD(msg), msg->len);
 	crc_accumulate(crc_extra, &checksum);
