@@ -549,6 +549,7 @@ MAVLINK_HELPER uint16_t mavlink_msg_to_send_buffer(uint8_t *buf, const mavlink_m
 		memcpy(&buf[6], _MAV_PAYLOAD(msg), msg->len);
 		ck = buf + header_len + 1 + (uint16_t)msg->len;
 	} else {
+		printf("The message ID in this new function I found is:  %d\n", msg->msgid);
 		length = _mav_trim_payload(_MAV_PAYLOAD(msg), length);
 		header_len = MAVLINK_CORE_HEADER_LEN;
 		buf[0] = msg->magic;
