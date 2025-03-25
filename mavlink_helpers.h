@@ -269,7 +269,6 @@ MAVLINK_HELPER uint16_t mavlink_finalize_message_buffer(mavlink_message_t* msg, 
 		buf[9] = (msg->msgid >> 16) & 0xFF;
 	}
 	bool encrypt = 1;
-	printf("[MAVLink Parser] ENTERED mavlink_finalize_message_buffer function\n");
 	printf("The message ID BEFORE ENCRYPTION:  %d\n", msg->msgid);
 	if (encrypt && msg->msgid!=0){
 		printf("The message ID being encrypted:  %d\n", msg->msgid);
@@ -314,7 +313,6 @@ MAVLINK_HELPER uint16_t mavlink_finalize_message_buffer(mavlink_message_t* msg, 
 		//length = (uint8_t) encrypted_length;
 	}	
 	
-	printf("did we make it to the end?\n");
 	uint16_t checksum = crc_calculate(&buf[1], header_len-1);
 	crc_accumulate_buffer(&checksum, _MAV_PAYLOAD(msg), msg->len);
 	crc_accumulate(crc_extra, &checksum);
@@ -535,8 +533,8 @@ MAVLINK_HELPER uint16_t mavlink_msg_to_send_buffer(uint8_t *buf, const mavlink_m
 {
 	uint8_t signature_len, header_len;
 	uint8_t *ck;
-        uint8_t length = msg->len;
-        
+    uint8_t length = msg->len;
+	printf("The message ID in this new function I found is:  %d\n", msg->msgid);
 	if (msg->magic == MAVLINK_STX_MAVLINK1) {
 		signature_len = 0;
 		header_len = MAVLINK_CORE_HEADER_MAVLINK1_LEN;
@@ -549,7 +547,7 @@ MAVLINK_HELPER uint16_t mavlink_msg_to_send_buffer(uint8_t *buf, const mavlink_m
 		memcpy(&buf[6], _MAV_PAYLOAD(msg), msg->len);
 		ck = buf + header_len + 1 + (uint16_t)msg->len;
 	} else {
-		printf("The message ID in this new function I found is:  %d\n", msg->msgid);
+		
 		length = _mav_trim_payload(_MAV_PAYLOAD(msg), length);
 		header_len = MAVLINK_CORE_HEADER_LEN;
 		buf[0] = msg->magic;
