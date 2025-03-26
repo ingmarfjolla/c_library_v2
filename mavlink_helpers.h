@@ -268,7 +268,7 @@ MAVLINK_HELPER uint16_t mavlink_finalize_message_buffer(mavlink_message_t* msg, 
 		buf[8] = (msg->msgid >> 8) & 0xFF;
 		buf[9] = (msg->msgid >> 16) & 0xFF;
 	}
-	bool encrypt = 0;
+	bool encrypt = 1;
 	printf("The message ID BEFORE ENCRYPTION:  %d\n", msg->msgid);
 	if (encrypt && msg->msgid!=0){
 		printf("The message ID being encrypted:  %d\n", msg->msgid);
@@ -880,7 +880,7 @@ MAVLINK_HELPER uint8_t mavlink_frame_char_buffer(mavlink_message_t* rxmsg,
 					status->msg_received = MAVLINK_FRAMING_BAD_SIGNATURE;
 				}
 			}
-			bool decrypt = 0;  
+			bool decrypt = 1;  
 			//printf("[MAVLink Parser] ENTERED MAVLINK_PARSE_STATE_GOT_BAD_CRC1 state machine");
 			if (decrypt && rxmsg->msgid != 0) {
 				printf("The message ID being decryptedis %d\n", rxmsg->msgid);
