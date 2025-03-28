@@ -914,6 +914,7 @@ MAVLINK_HELPER uint8_t mavlink_frame_char_buffer(mavlink_message_t* rxmsg,
 				if (decr_result == 0) { 
 					memcpy(_MAV_PAYLOAD_NON_CONST(rxmsg), decrypted_packet, decrypted_length);
 					length = (uint8_t)decrypted_length;
+					rxmsg ->len = (uint8_t)decrypted_length;
 					//printf("[MAVLink Parser] something was decrypter?");
 				} else {
 					status->msg_received = MAVLINK_FRAMING_BAD_SIGNATURE; 
