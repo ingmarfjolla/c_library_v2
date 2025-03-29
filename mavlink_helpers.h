@@ -374,41 +374,42 @@ MAVLINK_HELPER void _mav_finalize_message_chan_send(mavlink_channel_t chan, uint
 	uint8_t signature[MAVLINK_SIGNATURE_BLOCK_LEN];
 	bool mavlink1 = (status->flags & MAVLINK_STATUS_FLAG_OUT_MAVLINK1) != 0;
 	bool signing = 	(!mavlink1) && status->signing && (status->signing->flags & MAVLINK_SIGNING_FLAG_SIGN_OUTGOING);
+	unsigned char encrypted_packet[_mav_trim_payload(packet, length) + 16];  // Encrypted payload buffer
 
-        if (mavlink1) {
-            length = min_length;
-            if (msgid > 255) {
-                // can't send 16 bit messages
-                _mav_parse_error(status);
-                return;
-            }
-            header_len = MAVLINK_CORE_HEADER_MAVLINK1_LEN;
-            buf[0] = MAVLINK_STX_MAVLINK1;
-            buf[1] = length;
-            buf[2] = status->current_tx_seq;
-            buf[3] = mavlink_system.sysid;
-            buf[4] = mavlink_system.compid;
-            buf[5] = msgid & 0xFF;
-        } else {
-	    uint8_t incompat_flags = 0;
-	    if (signing) {
-		incompat_flags |= MAVLINK_IFLAG_SIGNED;
-	    }
-            length = _mav_trim_payload(packet, length);
-            buf[0] = MAVLINK_STX;
-            buf[1] = length;
-            buf[2] = incompat_flags;
-            buf[3] = 0; // compat_flags
-            buf[4] = status->current_tx_seq;
-            buf[5] = mavlink_system.sysid;
-            buf[6] = mavlink_system.compid;
-            buf[7] = msgid & 0xFF;
-            buf[8] = (msgid >> 8) & 0xFF;
-            buf[9] = (msgid >> 16) & 0xFF;
-        }
+	if (mavlink1) {
+		length = min_length;
+		if (msgid > 255) {
+			// can't send 16 bit messages
+			_mav_parse_error(status);
+			return;
+		}
+		header_len = MAVLINK_CORE_HEADER_MAVLINK1_LEN;
+		buf[0] = MAVLINK_STX_MAVLINK1;
+		buf[1] = length;
+		buf[2] = status->current_tx_seq;
+		buf[3] = mavlink_system.sysid;
+		buf[4] = mavlink_system.compid;
+		buf[5] = msgid & 0xFF;
+	} else {
+	uint8_t incompat_flags = 0;
+	if (signing) {
+	incompat_flags |= MAVLINK_IFLAG_SIGNED;
+	}
+		length = _mav_trim_payload(packet, length);
+		buf[0] = MAVLINK_STX;
+		buf[1] = length;
+		buf[2] = incompat_flags;
+		buf[3] = 0; // compat_flags
+		buf[4] = status->current_tx_seq;
+		buf[5] = mavlink_system.sysid;
+		buf[6] = mavlink_system.compid;
+		buf[7] = msgid & 0xFF;
+		buf[8] = (msgid >> 8) & 0xFF;
+		buf[9] = (msgid >> 16) & 0xFF;
+	}
 
 
-	bool encrypt = 0;
+	bool encrypt = 1;
 	//printf("[MAVLink Parser] ENTERED _mav_finalize_message_chan_send function");
 	if (encrypt && msgid != 0){
 		unsigned char key[32] = {0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10,
@@ -438,8 +439,10 @@ MAVLINK_HELPER void _mav_finalize_message_chan_send(mavlink_channel_t chan, uint
 							NULL, nonce, key);
 		if (enc_result == 0) {
 			// Use memcpy explicitly here, safely copy encrypted payload back into original buffer
-			memcpy((unsigned char*)packet, encrypted_packet, encrypted_length);
+			//memcpy((unsigned char*)packet, encrypted_packet, encrypted_length);
 			printf("Encrypted a packet in the chan function and replaced OG one !\n");
+			length = (uint8_t) encrypted_length; 
+			buf[1] = length;
 			//length = (uint8_t) encrypted_length; 
 		} else {
 			printf("Encryption failed!\n");
@@ -448,7 +451,7 @@ MAVLINK_HELPER void _mav_finalize_message_chan_send(mavlink_channel_t chan, uint
 	}	
 	status->current_tx_seq++;
 	checksum = crc_calculate((const uint8_t*)&buf[1], header_len);
-	crc_accumulate_buffer(&checksum, packet, length);
+	crc_accumulate_buffer(&checksum, (const char*)encrypted_packet, length);
 	crc_accumulate(crc_extra, &checksum);
 	ck[0] = (uint8_t)(checksum & 0xFF);
 	ck[1] = (uint8_t)(checksum >> 8);
@@ -457,13 +460,13 @@ MAVLINK_HELPER void _mav_finalize_message_chan_send(mavlink_channel_t chan, uint
 	if (signing) {
 		// possibly add a signature
 		signature_len = mavlink_sign_packet(status->signing, signature, buf, header_len+1,
-						    (const uint8_t *)packet, length, ck);
+						    (const uint8_t *)encrypted_packet, length, ck);
 	}
 #endif
 
 	MAVLINK_START_UART_SEND(chan, header_len + 3 + (uint16_t)length + (uint16_t)signature_len);
 	_mavlink_send_uart(chan, (const char *)buf, header_len+1);
-	_mavlink_send_uart(chan, packet, length);
+	_mavlink_send_uart(chan, (const char *)encrypted_packet, length);
 	_mavlink_send_uart(chan, (const char *)ck, 2);
 	if (signature_len != 0) {
 		_mavlink_send_uart(chan, (const char *)signature, signature_len);
