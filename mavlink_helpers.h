@@ -936,11 +936,11 @@ MAVLINK_HELPER uint8_t mavlink_frame_char_buffer(mavlink_message_t* rxmsg,
 				//printf("Some form of decryption happened, lets go to the next line");
 				//printf("Decryption result for qgroundcontrol is %d\n", decr_result);
 				if (decr_result == 0) { 
-					memcpy((uint8_t *)_MAV_PAYLOAD_NON_CONST(rxmsg), decrypted_packet, decrypted_length);
+					memcpy(_MAV_PAYLOAD_NON_CONST(rxmsg), decrypted_packet, decrypted_length);
 					length = (uint8_t)decrypted_length;
 					rxmsg ->len = (uint8_t)decrypted_length;
 					//printf("[MAVLink Parser] something was decrypter?");
-					memset(((uint8_t*)_MAV_PAYLOAD_NON_CONST(rxmsg)) + decrypted_length, 0, MAVLINK_MAX_PAYLOAD_LEN - decrypted_length);
+					memset((_MAV_PAYLOAD_NON_CONST(rxmsg)) + decrypted_length, 0, MAVLINK_MAX_PAYLOAD_LEN - decrypted_length);
 				} else {
 					status->msg_received = MAVLINK_FRAMING_BAD_SIGNATURE; 
 				}
