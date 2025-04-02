@@ -269,9 +269,9 @@ MAVLINK_HELPER uint16_t mavlink_finalize_message_buffer(mavlink_message_t* msg, 
 		buf[9] = (msg->msgid >> 16) & 0xFF;
 	}
 	bool encrypt = 1;
-	printf("The message ID BEFORE ENCRYPTION:  %d\n", msg->msgid);
+	//printf("The message ID BEFORE ENCRYPTION:  %d\n", msg->msgid);
 	if (encrypt && msg->msgid!=0){
-		printf("The message ID being encrypted:  %d\n", msg->msgid);
+		//printf("The message ID being encrypted:  %d\n", msg->msgid);
 		unsigned char key[32] = {0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10,
 			11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
 			22, 23, 24, 25, 26, 27, 28, 29, 30, 31};
@@ -438,7 +438,7 @@ MAVLINK_HELPER void _mav_finalize_message_chan_send(mavlink_channel_t chan, uint
 		if (enc_result == 0) {
 			// Use memcpy explicitly here, safely copy encrypted payload back into original buffer
 			//memcpy((unsigned char*)packet, encrypted_packet, encrypted_length);
-			printf("Encrypted a packet in the chan function and replaced OG one !\n");
+			//("Encrypted a packet in the chan function and replaced OG one !\n");
 			length = (uint8_t) encrypted_length; 
 			buf[1] = length;
 			//length = (uint8_t) encrypted_length; 
@@ -558,7 +558,7 @@ MAVLINK_HELPER uint16_t mavlink_msg_to_send_buffer(uint8_t *buf, const mavlink_m
 	uint8_t signature_len, header_len;
 	uint8_t *ck;
     uint8_t length = msg->len;
-	printf("The message ID in this new function I found is:  %d\n", msg->msgid);
+	//printf("The message ID in this new function I found is:  %d\n", msg->msgid);
 	if (msg->magic == MAVLINK_STX_MAVLINK1) {
 		signature_len = 0;
 		header_len = MAVLINK_CORE_HEADER_MAVLINK1_LEN;
@@ -907,7 +907,7 @@ MAVLINK_HELPER uint8_t mavlink_frame_char_buffer(mavlink_message_t* rxmsg,
 			bool decrypt = 1;  
 			//printf("[MAVLink Parser] ENTERED MAVLINK_PARSE_STATE_GOT_BAD_CRC1 state machine");
 			if (decrypt && rxmsg->msgid != 0) {
-				printf("The message ID being decryptedis %d\n", rxmsg->msgid);
+				//printf("The message ID being decryptedis %d\n", rxmsg->msgid);
 
 				unsigned char key[32] = {0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10,
 					11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
@@ -934,7 +934,7 @@ MAVLINK_HELPER uint8_t mavlink_frame_char_buffer(mavlink_message_t* rxmsg,
 						NULL, 0,  
 						nonce, key);
 				//printf("Some form of decryption happened, lets go to the next line");
-				printf("Decryption result for qgroundcontrol is %d\n", decr_result);
+				//printf("Decryption result for qgroundcontrol is %d\n", decr_result);
 				if (decr_result == 0) { 
 					memcpy((uint8_t *)_MAV_PAYLOAD_NON_CONST(rxmsg), decrypted_packet, decrypted_length);
 					length = (uint8_t)decrypted_length;
