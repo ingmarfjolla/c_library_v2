@@ -464,7 +464,7 @@ MAVLINK_HELPER void _mav_finalize_message_chan_send(mavlink_channel_t chan, uint
 	}
 #endif
 	//because we overwrite the original packet, heartbeats need to be sent like this. maybe ill find a better solution? 
-	if(msgid == 0 || msgid == 20 || msgid == 21 || msgid == 22 || msgid != 35 || msgid != 65 || msgid != 70)){
+	if(msgid == 0 || msgid == 20 || msgid == 21 || msgid == 22 || msgid == 35 || msgid == 65 || msgid == 70)){
 		status->current_tx_seq++;
 		checksum = crc_calculate((const uint8_t*)&buf[1], header_len);
 		crc_accumulate_buffer(&checksum, packet, length);
